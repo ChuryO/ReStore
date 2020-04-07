@@ -2,46 +2,21 @@ import { createStore, applyMiddleware } from 'redux';
 import reducer from './reducers/reducer';
 
 // Middleware
-const logMiddleware = (store) => (dispatch) => (action) =>{
-	console.log(action.type, store.getState());
-	return dispatch(action);
+const logMiddleware = ({getState, dispatch}) => (next) => (action) =>{ // (only 2 func from store) => ( next === dispatch )
+	console.log(action.type, getState());
+	return next(action);
 };
 
 // Middleware
-const stringMiddleware = () => (dispatch) => (action) => {
+const stringMiddleware = () => (next) => (action) => {
 	if (typeof action === 'string') {
-		return dispatch({
+		return next({
 			type: action
 		});
 	}
-	return dispatch(action);
+	return next(action);
 };
 
-// Store Enhance
-const stringEnhancer = (createStore) => (...args) => { // middleware (store) => (dispatch) => (action)
-	const store = createStore(...args);             // store
-	const originalDispatch = store.dispatch;
-	store.dispatch = (action) => {                  // dispatch
-		if (typeof action === 'string') {
-			return originalDispatch({
-				type: action                              // action
-			});
-		}
-		return originalDispatch(action);
-	};
-	return store;
-};
-
-// Store Enhance
-const logEnhancer = (createStore) => (...args) => {
-	const store = createStore(...args);
-	const originalDispatch = store.dispatch;
-	store.dispatch = (action) => {
-		console.log(action);
-		return originalDispatch(action);
-	};
-	return store;
-};
 
 const store = createStore(reducer, applyMiddleware(stringMiddleware, logMiddleware));
 
