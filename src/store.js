@@ -1,8 +1,10 @@
 import { createStore, applyMiddleware } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+
 import reducer from './reducers/reducer';
 
 // Middleware
-const logMiddleware = ({getState, dispatch}) => (next) => (action) =>{ // (only 2 func from store) => ( next === dispatch )
+const logMiddleware = ({getState}) => (next) => (action) =>{
 	console.log(action.type, getState());
 	return next(action);
 };
@@ -18,8 +20,16 @@ const stringMiddleware = () => (next) => (action) => {
 };
 
 
-const store = createStore(reducer, applyMiddleware(stringMiddleware, logMiddleware));
+const store = createStore(reducer, applyMiddleware(thunkMiddleware, stringMiddleware, logMiddleware));
 
 store.dispatch('HELLO_WORLD');
+
+const deleteActionCreator = (timeout) => (dispatch) =>{
+	setTimeout(() => dispatch({
+		type: 'DELETE_ACTION'
+	}), timeout);
+};
+
+store.dispatch(deleteActionCreator(3000));
 
 export default store;
